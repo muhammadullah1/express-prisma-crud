@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  username String   @unique
+  email    String   @unique
+  phone    String?
+  website  String?
+  password String
+  role     Role     @default(USER)
+  
+  // Address information
+  address  Address?
+  
+  // Company information  
+  company  Company?
+  
+  // Relations
+  posts    Post[]
+  albums   Album[]
+  todos    Todo[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Address {
+  id      Int    @id @default(autoincrement())
+  street  String
+  suite   String
+  city    String
+  zipcode String
+  
+  // Geo coordinates
+  geo     Geo?
+  
+  // Relations
+  userId  Int    @unique
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+model Geo {
+  id        Int     @id @default(autoincrement())
+  lat       String
+  lng       String
+  
+  // Relations
+  addressId Int     @unique
+  address   Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  @@map("geo")
+}
+
+model Company {
+  id          Int    @id @default(autoincrement())
+  name        String
+  catchPhrase String
+  bs          String
+  
+  // Relations
+  userId      Int    @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("companies")
+}
+
+model Post {
+  id       Int       @id @default(autoincrement())
+  title    String
+  body     String
+  
+  // Relations
+  userId   Int
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments Comment[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("posts")
+}
+
+model Comment {
+  id     Int    @id @default(autoincrement())
+  name   String
+  email  String
+  body   String
+  
+  // Relations
+  postId Int
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("comments")
+}
+
+model Album {
+  id     Int     @id @default(autoincrement())
+  title  String
+  
+  // Relations
+  userId Int
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos Photo[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("albums")
+}
+
+model Photo {
+  id           Int    @id @default(autoincrement())
+  title        String
+  url          String
+  thumbnailUrl String
+  
+  // Relations
+  albumId      Int
+  album        Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("photos")
+}
+
+model Todo {
+  id        Int     @id @default(autoincrement())
+  title     String
+  completed Boolean @default(false)
+  
+  // Relations
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("todos")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
