@@ -96,7 +96,7 @@ class Server {
     try {
       // Connect to database
       await this.database.connect();
-      console.log('✅ Database connected successfully');
+      // console.log('✅ Database connected successfully');
 
       // Start server
       this.server = this.app.listen(this.port, () => {
